@@ -1,6 +1,6 @@
 import type WebSocket from "ws";
 import { MESSAGES, MessageType, movePayload } from "@repo/common";
-import { Queue } from "./queue";
+import { Queue } from "./Queue";
 import type { Game } from "./Game";
 
 export class SocketManager {
@@ -24,23 +24,40 @@ export class SocketManager {
         const message = JSON.parse(event.toString());
 
         const { type, payload } = MessageType.parse(message);
+        console.log(payload);
 
         switch (type) {
           case MESSAGES.START:
-            const game = this.queue.enqueue(socket);
+            const newGame = this.queue.enqueue(socket);
 
-            if (game) {
-              this.games.set(game.id, game);
+            if (newGame) {
+              this.games.set(newGame.id, newGame);
             }
 
             break;
           case MESSAGES.MOVE:
-            const { gameId, move } = movePayload.parse(JSON.parse(payload));
+            if (!payload) return;
 
-            console.log(`Make ${move} in ${gameId}`);
+            const { gameId, move } = payload;
+
+            const game = this.games.get(gameId);
+
+            if (!game) {
+              socket.send("Invalid Game Id.");
+              return;
+            }
+
+            game.move(move);
             break;
           case MESSAGES.QUIT:
-            // abort if the game is running
+            this.games.forEach((g) => {
+              if (g.white === socket) {
+                g.abort("w");
+              } else if (g.black === socket) {
+                g.abort("b");
+              }
+            });
+
             this.queue.remove(socket);
             this.exit(socket);
             break;

@@ -8,7 +8,12 @@ export enum MESSAGES {
 
 export const MessageType = z.object({
   type: z.nativeEnum(MESSAGES),
-  payload: z.string(),
+  payload: z
+    .object({
+      gameId: z.string(),
+      move: z.string(),
+    })
+    .optional(),
 });
 
 export const movePayload = z.object({

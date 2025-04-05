@@ -18,6 +18,10 @@ export class Queue {
   }
 
   enqueue(item: WebSocket): Game | undefined {
+    if (this.seek(item)) {
+      return;
+    }
+
     this.length++;
 
     const node: Node = { value: item };
@@ -99,12 +103,17 @@ export class Queue {
 
   matchmake() {
     if (this.head && this.head.next) {
-      const game = new Game(this.head, this.head?.next);
+      const game = new Game(this.head.value, this.head.next.value);
 
-      this.head.value.send("Match Found");
-      this.head.next.value.send("Match Found");
+      const message = {
+        message: "Game Found.",
+        gameId: game.id,
+      };
 
+      this.head.value.send(JSON.stringify({ ...message, side: "w" }));
       this.dequeue();
+
+      this.head.value.send(JSON.stringify({ ...message, side: "b" }));
       this.dequeue();
 
       return game;
