@@ -1,6 +1,7 @@
+import { WEBSOCKET_MESSAGES } from "@repo/common";
 import { randomUUIDv7 } from "bun";
 import { Chess, type Color } from "chess.js";
-import type WebSocket from "ws";
+import WebSocket from "ws";
 
 export class Game {
   public id: string;
@@ -15,12 +16,17 @@ export class Game {
     this.game = new Chess();
   }
 
-  move(move: string) {
+  move(move: { from: string; to: string }) {
     try {
       this.game.move(move);
 
-      this.white.send(move);
-      this.black.send(move);
+      const message = {
+        type: WEBSOCKET_MESSAGES.MOVE_PIECE,
+        message: this.game.fen(),
+      };
+
+      this.white.send(JSON.stringify(message));
+      this.black.send(JSON.stringify(message));
 
       if (this.game.isGameOver()) {
         this.gameover();
@@ -31,21 +37,37 @@ export class Game {
   }
 
   gameover() {
-    if (this.game.turn() === "b") {
-      this.white.send("You won. Game Over");
-      return;
+    const message = {
+      type: WEBSOCKET_MESSAGES.GAME_ENDED,
+      message: "",
+    };
+
+    if (this.game.isDraw()) {
+      message.message = "Game Draw.";
+    } else if (this.game.turn() === "b") {
+      message.message = "White won. Game Over";
+    } else if (this.game.turn() === "w") {
+      message.message = "Black won. Game Over";
     }
 
-    this.black.send("You won. Game Over");
+    this.white.send(JSON.stringify(message));
+    this.black.send(JSON.stringify(message));
+
+    this.white.close();
+    this.black.close();
   }
 
   abort(side: Color) {
-    // TODO: Finish the game
+    const message = {
+      type: WEBSOCKET_MESSAGES.GAME_ABORTED,
+      message: "Game Aborted by Opponent",
+    };
+
     if (side === "w") {
-      this.black.send("Game Aborted by Opponent");
+      this.black.send(JSON.stringify(message));
       this.black.close();
     } else if (side === "b") {
-      this.white.send("Game Aborted by Opponent");
+      this.white.send(JSON.stringify(message));
       this.white.close();
     }
   }

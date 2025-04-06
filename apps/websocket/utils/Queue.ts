@@ -1,5 +1,6 @@
 import type WebSocket from "ws";
 import { Game } from "./Game";
+import { WEBSOCKET_MESSAGES } from "@repo/common";
 
 type Node = {
   value: WebSocket;
@@ -106,6 +107,7 @@ export class Queue {
       const game = new Game(this.head.value, this.head.next.value);
 
       const message = {
+        type: WEBSOCKET_MESSAGES.START_GAME,
         message: "Game Found.",
         gameId: game.id,
       };

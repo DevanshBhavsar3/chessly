@@ -1,5 +1,5 @@
 import type WebSocket from "ws";
-import { MESSAGES, MessageType, movePayload } from "@repo/common";
+import { FRONTEND_MESSAGES, WEBSOCKET_MESSAGES } from "@repo/common";
 import { Queue } from "./Queue";
 import type { Game } from "./Game";
 
@@ -23,11 +23,9 @@ export class SocketManager {
       try {
         const message = JSON.parse(event.toString());
 
-        const { type, payload } = MessageType.parse(message);
-        console.log(payload);
-
-        switch (type) {
-          case MESSAGES.START:
+        switch (message.type) {
+          case FRONTEND_MESSAGES.START:
+            console.log("User tried to start a game");
             const newGame = this.queue.enqueue(socket);
 
             if (newGame) {
@@ -35,21 +33,26 @@ export class SocketManager {
             }
 
             break;
-          case MESSAGES.MOVE:
-            if (!payload) return;
-
-            const { gameId, move } = payload;
+          case FRONTEND_MESSAGES.MOVE:
+            const { gameId, move } = message.payload;
 
             const game = this.games.get(gameId);
 
             if (!game) {
-              socket.send("Invalid Game Id.");
+              socket.send(
+                JSON.stringify({
+                  type: WEBSOCKET_MESSAGES.ERROR,
+                  message: "Invalid Game Id.",
+                })
+              );
               return;
             }
 
             game.move(move);
             break;
-          case MESSAGES.QUIT:
+          case FRONTEND_MESSAGES.QUIT:
+            console.log("User tried to quit.");
+
             this.games.forEach((g) => {
               if (g.white === socket) {
                 g.abort("w");
@@ -65,7 +68,12 @@ export class SocketManager {
             throw new Error("Invalid Message.");
         }
       } catch (e) {
-        socket.send(JSON.stringify(e));
+        socket.send(
+          JSON.stringify({
+            type: WEBSOCKET_MESSAGES.ERROR,
+            message: e,
+          })
+        );
       }
     });
   }

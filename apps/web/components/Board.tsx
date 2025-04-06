@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { MouseEvent, useRef } from "react";
 
 function parseFen(fen: string) {
   let parsedFen: string = "";
@@ -49,24 +52,79 @@ function getIcon(piece: string) {
   }
 }
 
-export function Board({ fen }: { fen: string }) {
+export function Board({
+  fen,
+  onMove,
+  side,
+}: {
+  fen: string;
+  onMove: (move: { from: string; to: string }) => void;
+  side: "w" | "b";
+}) {
+  const moveRef = useRef<string>("");
   const [position, turn, etc] = fen.split(" ");
-  const parsedFen = parseFen(position).split("/");
+  let parsedFen;
+
+  if (side === "b") {
+    parsedFen = parseFen(position).split("/").reverse();
+
+    parsedFen = parsedFen.map((item) => item.split("").reverse().join(""));
+  } else {
+    parsedFen = parseFen(position).split("/");
+  }
+
+  function handleDragEnter(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+
+    const square =
+      target.dataset.square || target.parentElement?.dataset.square || "";
+
+    moveRef.current = square;
+  }
+
+  function handleDragEnd(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+
+    // Return if the piece is not of user's side
+    if (target.dataset.side !== side) return;
+
+    const parentElement = target.parentElement as HTMLElement;
+    const fromSquare = parentElement.dataset.square;
+
+    onMove({
+      from: fromSquare || "",
+      to: moveRef.current,
+    });
+  }
 
   return (
-    <div className="">
+    <div>
       {turn === "b" ? "Black's Turn" : "White's Turn"}
 
       {parsedFen.map((row, rowIdx) => (
-        <div key={rowIdx} className="flex">
+        <div key={rowIdx} className="flex select-none">
           {Array.from(row).map((col, colIdx) => (
             <div
               key={colIdx}
+              data-square={
+                side === "b"
+                  ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
+                  : String.fromCharCode(97 + colIdx) + (8 - rowIdx)
+              }
               className={`w-16 h-16 ${rowIdx % 2 === colIdx % 2 ? "bg-neutral-200" : "bg-neutral-600"} border border-neutral-700`}
+              onDragEnter={handleDragEnter}
+              onDragEnd={handleDragEnd}
             >
+              <p className="absolute text-xs opacity-30 p-0.5">
+                {side === "b"
+                  ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
+                  : String.fromCharCode(97 + colIdx) + (8 - rowIdx)}
+              </p>
               {getIcon(col) && (
                 <Image
                   src={getIcon(col) as string}
+                  data-piece={col}
+                  data-side={col === col.toUpperCase() ? "w" : "b"}
                   alt="piece"
                   width={10}
                   height={10}
