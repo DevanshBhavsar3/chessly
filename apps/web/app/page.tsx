@@ -1,14 +1,18 @@
-"use client";
-
+import { signIn } from "@/auth";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 
 export default function Home() {
   return (
     <div>
-      <button onClick={() => signIn("google")} className="bg-sky-300 p-2">
-        SignIn with google
-      </button>
+      <form
+        action={async () => {
+          "use server";
+          await signIn("google");
+        }}
+      >
+        <button type="submit">Signin with Google</button>
+      </form>
+
       <Link href={"/game"}>Start Game</Link>
     </div>
   );

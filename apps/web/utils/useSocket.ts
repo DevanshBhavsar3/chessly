@@ -1,3 +1,5 @@
+"use client";
+
 import { FRONTEND_MESSAGES, WEBSOCKET_MESSAGES } from "@repo/common";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";

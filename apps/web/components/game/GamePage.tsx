@@ -3,7 +3,7 @@
 import { useSocket } from "@/utils/useSocket";
 import { Board } from "../Board";
 import { FRONTEND_MESSAGES, WEBSOCKET_MESSAGES } from "@repo/common";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w";
 
