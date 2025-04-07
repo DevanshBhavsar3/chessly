@@ -5,28 +5,34 @@ import type { Game } from "./Game";
 
 export class SocketManager {
   private queue: Queue;
-  private sockets: WebSocket[];
-  private games = new Map<string, Game>();
+  private sockets: Map<string, WebSocket>;
+  private games: Map<string, Game>;
 
   constructor() {
-    this.sockets = [];
+    this.sockets = new Map<string, WebSocket>();
+    this.games = new Map<string, Game>();
     this.queue = new Queue();
   }
 
-  join(socket: WebSocket) {
-    this.sockets.push(socket);
-    this.handleMessage(socket);
+  join(socket: WebSocket, userId: string) {
+    this.sockets.set(userId, socket);
+    this.handleMessage(userId);
   }
 
-  handleMessage(socket: WebSocket) {
+  handleMessage(userId: string) {
+    const socket = this.sockets.get(userId);
+
+    if (!socket) {
+      return;
+    }
+
     socket.on("message", (event) => {
       try {
         const message = JSON.parse(event.toString());
 
         switch (message.type) {
           case FRONTEND_MESSAGES.START:
-            console.log("User tried to start a game");
-            const newGame = this.queue.enqueue(socket);
+            const newGame = this.queue.enqueue(socket, userId);
 
             if (newGame) {
               this.games.set(newGame.id, newGame);
@@ -51,8 +57,6 @@ export class SocketManager {
             game.move(move);
             break;
           case FRONTEND_MESSAGES.QUIT:
-            console.log("User tried to quit.");
-
             this.games.forEach((g) => {
               if (g.white === socket) {
                 g.abort("w");
@@ -61,8 +65,8 @@ export class SocketManager {
               }
             });
 
-            this.queue.remove(socket);
-            this.exit(socket);
+            this.queue.remove(userId);
+            this.exit(socket, message.userId);
             break;
           default:
             throw new Error("Invalid Message.");
@@ -78,8 +82,8 @@ export class SocketManager {
     });
   }
 
-  exit(socket: WebSocket) {
-    this.sockets = this.sockets.filter((s) => s !== socket);
+  exit(socket: WebSocket, userId: string) {
+    this.sockets.delete(userId);
     socket.close();
   }
 }

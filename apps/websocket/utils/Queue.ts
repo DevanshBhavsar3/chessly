@@ -4,6 +4,7 @@ import { WEBSOCKET_MESSAGES } from "@repo/common";
 
 type Node = {
   value: WebSocket;
+  userId: string;
   next?: Node;
   prev?: Node;
 };
@@ -18,14 +19,20 @@ export class Queue {
     this.length = 0;
   }
 
-  enqueue(item: WebSocket): Game | undefined {
-    if (this.seek(item)) {
+  enqueue(item: WebSocket, userId: string): Game | undefined {
+    if (this.seek(userId)) {
+      const message = {
+        type: WEBSOCKET_MESSAGES.ERROR,
+        message: "Already in the Queue.",
+      };
+
+      item.send(JSON.stringify(message));
       return;
     }
 
     this.length++;
 
-    const node: Node = { value: item };
+    const node: Node = { value: item, userId };
 
     if (!this.head) {
       this.head = this.tail = node;
@@ -55,7 +62,7 @@ export class Queue {
     this.head = this.head.next;
   }
 
-  seek(socket: WebSocket): boolean {
+  seek(userId: string): boolean {
     if (this.length === 0) {
       return false;
     }
@@ -63,7 +70,7 @@ export class Queue {
     let curr = this.head;
 
     while (curr) {
-      if (curr.value === socket) {
+      if (curr.userId === userId) {
         return true;
       }
 
@@ -73,8 +80,8 @@ export class Queue {
     return false;
   }
 
-  remove(socket: WebSocket) {
-    if (!this.seek(socket)) {
+  remove(userId: string) {
+    if (!this.seek(userId)) {
       return;
     }
 
@@ -88,7 +95,7 @@ export class Queue {
     let curr = this.head;
 
     while (curr) {
-      if (curr.value === socket) {
+      if (curr.userId === userId) {
         if (curr.prev) {
           curr.prev.next = curr.next;
         }
