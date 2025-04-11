@@ -52,15 +52,14 @@ function getIcon(piece: string) {
   }
 }
 
-export function Board({
-  fen,
-  onMove,
-  side,
-}: {
+interface BoardProps {
   fen: string;
-  onMove: (move: { from: string; to: string }) => void;
-  side: "w" | "b";
-}) {
+  onMove?: (move: { from: string; to: string }) => void;
+  side?: "w" | "b";
+  disabled?: boolean;
+}
+
+export function Board({ fen, onMove, side, disabled }: BoardProps) {
   const moveRef = useRef<string>("");
   const [position, turn, etc] = fen.split(" ");
   let parsedFen;
@@ -74,6 +73,8 @@ export function Board({
   }
 
   function handleDragEnter(e: MouseEvent) {
+    if (disabled) return;
+
     const target = e.target as HTMLElement;
 
     const square =
@@ -91,10 +92,12 @@ export function Board({
     const parentElement = target.parentElement as HTMLElement;
     const fromSquare = parentElement.dataset.square;
 
-    onMove({
-      from: fromSquare || "",
-      to: moveRef.current,
-    });
+    if (!disabled && onMove) {
+      onMove({
+        from: fromSquare || "",
+        to: moveRef.current,
+      });
+    }
   }
 
   return (

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import Provider from "./providers";
-import { ThemeProvider } from "@/components/theme-provider";
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -24,11 +23,7 @@ export default function RootLayout({
       <body
         className={`${openSans.variable} font-sans antialiased bg-white dark:bg-zinc-800 text-black dark:text-white max-w-7xl mx-auto`}
       >
-        <Provider>
-          <ThemeProvider attribute={"class"} defaultTheme="system" enableSystem>
-            {children}
-          </ThemeProvider>
-        </Provider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
