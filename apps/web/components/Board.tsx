@@ -57,9 +57,10 @@ interface BoardProps {
   onMove?: (move: { from: string; to: string }) => void;
   side?: "w" | "b";
   disabled?: boolean;
+  notation?: boolean;
 }
 
-export function Board({ fen, onMove, side, disabled }: BoardProps) {
+export function Board({ fen, onMove, side, disabled, notation }: BoardProps) {
   const moveRef = useRef<string>("");
   const [position, turn, etc] = fen.split(" ");
   let parsedFen;
@@ -101,43 +102,45 @@ export function Board({ fen, onMove, side, disabled }: BoardProps) {
   }
 
   return (
-    <div>
-      {turn === "b" ? "Black's Turn" : "White's Turn"}
-
-      {parsedFen.map((row, rowIdx) => (
-        <div key={rowIdx} className="flex select-none">
-          {Array.from(row).map((col, colIdx) => (
-            <div
-              key={colIdx}
-              data-square={
-                side === "b"
-                  ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
-                  : String.fromCharCode(97 + colIdx) + (8 - rowIdx)
-              }
-              className={`w-16 h-16 ${rowIdx % 2 === colIdx % 2 ? "bg-neutral-200" : "bg-neutral-600"} border border-neutral-700`}
-              onDragEnter={handleDragEnter}
-              onDragEnd={handleDragEnd}
-            >
-              <p className="absolute text-xs opacity-30 p-0.5">
-                {side === "b"
-                  ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
-                  : String.fromCharCode(97 + colIdx) + (8 - rowIdx)}
-              </p>
-              {getIcon(col) && (
-                <Image
-                  src={getIcon(col) as string}
-                  data-piece={col}
-                  data-side={col === col.toUpperCase() ? "w" : "b"}
-                  alt="piece"
-                  width={10}
-                  height={10}
-                  className="w-full h-full"
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      ))}
+    <div className="border border-muted-dark overflow-hidden aspect-square w-fit h-fit">
+      <div className="grid grid-rows-8">
+        {parsedFen.map((row, rowIdx) => (
+          <div key={rowIdx} className="grid grid-cols-8">
+            {Array.from(row).map((col, colIdx) => (
+              <div
+                key={colIdx}
+                data-square={
+                  side === "b"
+                    ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
+                    : String.fromCharCode(97 + colIdx) + (8 - rowIdx)
+                }
+                className={`relative aspect-square ${rowIdx % 2 === colIdx % 2 ? "bg-primary-dark" : "bg-muted"}`}
+                onDragEnter={handleDragEnter}
+                onDragEnd={handleDragEnd}
+              >
+                {notation && (
+                  <p className="absolute text-xs opacity-30 p-0.5">
+                    {side === "b"
+                      ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
+                      : String.fromCharCode(97 + colIdx) + (8 - rowIdx)}
+                  </p>
+                )}
+                {getIcon(col) && (
+                  <Image
+                    src={getIcon(col) as string}
+                    data-piece={col}
+                    data-side={col === col.toUpperCase() ? "w" : "b"}
+                    alt="piece"
+                    width={10}
+                    height={10}
+                    className="w-full h-full"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

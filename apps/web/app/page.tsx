@@ -9,6 +9,9 @@ import Image from "next/image";
 import { auth, signIn } from "@/auth";
 import { TypographyMuted } from "@/components/ui/TypographyMuted";
 import Link from "next/link";
+import { TypographySmall } from "@/components/ui/TypographySmall";
+import { TypographyLarge } from "@/components/ui/TypographyLarge";
+import { AutoPlayingBoard } from "@/components/AutoPlayingBoard";
 
 export default async function Home() {
   const session = await auth();
@@ -16,20 +19,18 @@ export default async function Home() {
   // TODO: Make new file for the hero content
   return (
     <main className="w-full min-h-screen">
-      <NavigationMenu />
-      <div className="max-w-4xl mx-auto space-y-5">
-        <TypographyH3>Chessly</TypographyH3>
+      <div className="max-w-4xl mx-auto space-y-5 min-h-screen flex items-center justify-center">
         <div className="flex justify-between gap-5">
           <div className="flex flex-col justify-between items-start w-full">
-            {session?.user && (
+            {session?.user ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Image
                     src={session.user.image || "not_found"}
                     alt="profile_pic"
-                    width={32}
-                    height={32}
-                    className="rounded-full border border-black/10"
+                    width={44}
+                    height={44}
+                    className="rounded-full border border-border"
                   />
                   <TypographyH4>{session.user.name}</TypographyH4>
                 </div>
@@ -41,45 +42,38 @@ export default async function Home() {
                   </TypographyH3>
                 </div>
               </div>
+            ) : (
+              <div className="w-full h-full overflow-hidden space-y-3">
+                <TypographyLarge>Currently Playing</TypographyLarge>
+                <div className="flex items-center border border-muted-dark rounded-md h-14 w-full overflow-hidden">
+                  <div className="bg-muted-dark h-full w-1/3">Hi</div>
+                  <div className="flex flex-col items-start justify-center m-2">
+                    <TypographySmall>CluxOP (123)</TypographySmall>
+                    <TypographyMuted>vs</TypographyMuted>
+                    <TypographySmall>CluxOP (456)</TypographySmall>
+                  </div>
+                </div>
+              </div>
             )}
             <div className="w-full flex flex-col gap-2">
-              <div className="w-full space-y-1">
-                <Link href={"/game"}>
-                  <Button className="w-full">
-                    <Image src={Chess} alt="start icon" className="invert" />
-                    New Game
-                  </Button>
-                </Link>
-                <TypographyMuted>12 Users Currently PLaying</TypographyMuted>
-              </div>
+              <Link href={"/game"}>
+                <Button className="w-full" variant="primary">
+                  <Image src={Chess} alt="start icon" className="dark:invert" />
+                  New Game
+                </Button>
+              </Link>
               {!session && (
-                <>
-                  <form
-                    action={async () => {
-                      "use server";
-                      await signIn("google");
-                    }}
-                    className="w-full"
-                  >
-                    <Button type="submit" className="w-full">
-                      <UserPlus size={18} />
-                      Signup
-                    </Button>
-                  </form>
-                  <Button>
-                    <LogIn size={18} />
+                <Link href={"/auth/login"}>
+                  <Button className="w-full">
+                    <UserPlus size={18} />
                     Login
                   </Button>
-                </>
+                </Link>
               )}
+              <TypographyMuted>12 PLaying Now</TypographyMuted>
             </div>
           </div>
-          <div>
-            <Board
-              fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"
-              disabled
-            />
-          </div>
+          <AutoPlayingBoard />
         </div>
       </div>
     </main>

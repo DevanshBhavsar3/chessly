@@ -5,6 +5,7 @@ import { WEBSOCKET_MESSAGES } from "@repo/common";
 type Node = {
   value: WebSocket;
   userId: string;
+  mode: string;
   next?: Node;
   prev?: Node;
 };
@@ -19,7 +20,7 @@ export class Queue {
     this.length = 0;
   }
 
-  enqueue(item: WebSocket, userId: string): Game | undefined {
+  enqueue(item: WebSocket, userId: string, mode: string): Game | undefined {
     if (this.seek(userId)) {
       const message = {
         type: WEBSOCKET_MESSAGES.ERROR,
@@ -32,7 +33,7 @@ export class Queue {
 
     this.length++;
 
-    const node: Node = { value: item, userId };
+    const node: Node = { value: item, userId, mode };
 
     if (!this.head) {
       this.head = this.tail = node;
@@ -110,22 +111,31 @@ export class Queue {
   }
 
   matchmake() {
-    if (this.head && this.head.next) {
-      const game = new Game(this.head.value, this.head.next.value);
+    if (!this.head) return;
 
-      const message = {
-        type: WEBSOCKET_MESSAGES.START_GAME,
-        message: "Game Found.",
-        gameId: game.id,
-      };
+    let curr: Node | undefined = this.head;
+    const opponent = this.head;
 
-      this.head.value.send(JSON.stringify({ ...message, side: "w" }));
-      this.dequeue();
+    while (curr) {
+      if (curr.userId !== opponent.userId && curr.mode === opponent.mode) {
+        const game = new Game(curr.value, opponent.value);
 
-      this.head.value.send(JSON.stringify({ ...message, side: "b" }));
-      this.dequeue();
+        const message = {
+          type: WEBSOCKET_MESSAGES.START_GAME,
+          message: "Game Found.",
+          gameId: game.id,
+        };
 
-      return game;
+        curr.value.send(JSON.stringify({ ...message, side: "w" }));
+        this.remove(curr.userId);
+
+        opponent.value.send(JSON.stringify({ ...message, side: "b" }));
+        this.remove(opponent.userId);
+
+        return game;
+      }
+
+      curr = curr.next;
     }
 
     return;

@@ -1,17 +1,36 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  primary?: boolean;
+  variant?: "default" | "primary" | "muted";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
+const variantStyles = {
+  default:
+    "bg-muted hover:bg-muted-dark border-muted-foreground text-foreground border-b-4 ",
+  primary:
+    "bg-primary hover:bg-primary-dark border-primary-dark primary-m text-primary-foreground border-b-4 ",
+  muted: "border-0 hover:bg-muted-dark transition-all duration-300",
+};
+
+const sizeStyles = {
+  sm: "h-7 px-2 py-1 font-sm",
+  md: "h-10 px-4 py-2 font-medium",
+  lg: "",
+};
+
 const baseStyle =
-  "bg-neutral-200 hover:bg-neutral-300 border border-black/10 h-10 px-4 py-2 max-w-full rounded-sm cursor-pointer border-b-4 text-start flex items-center gap-3 font-medium text-black";
+  "border max-w-full rounded-sm cursor-pointer text-start flex items-center gap-3";
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, primary = true, ...props }, ref) => {
+  ({ className, variant = "default", size = "md", ...props }, ref) => {
     return (
-      <button ref={ref} className={`${baseStyle} ${className}`} {...props} />
+      <button
+        ref={ref}
+        className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        {...props}
+      />
     );
   }
 );

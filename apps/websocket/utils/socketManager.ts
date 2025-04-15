@@ -32,7 +32,8 @@ export class SocketManager {
 
         switch (message.type) {
           case FRONTEND_MESSAGES.START:
-            const newGame = this.queue.enqueue(socket, userId);
+            const { mode } = message.payload;
+            const newGame = this.queue.enqueue(socket, userId, mode);
 
             if (newGame) {
               this.games.set(newGame.id, newGame);

@@ -23,6 +23,7 @@ export class Game {
       const message = {
         type: WEBSOCKET_MESSAGES.MOVE_PIECE,
         message: this.game.fen(),
+        moves: this.game.history({ verbose: true }),
       };
 
       this.white.send(JSON.stringify(message));

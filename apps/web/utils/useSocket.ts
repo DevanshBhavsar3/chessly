@@ -15,7 +15,7 @@ export function useSocket() {
     };
   }, [socket]);
 
-  function startGame() {
+  function startGame(mode: string) {
     setLoading(true);
     const socket = new WebSocket(`ws://localhost:8080?id=${data?.user?.id}`);
 
@@ -25,6 +25,9 @@ export function useSocket() {
       socket.send(
         JSON.stringify({
           type: FRONTEND_MESSAGES.START,
+          payload: {
+            mode,
+          },
         })
       );
     };

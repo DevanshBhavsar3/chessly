@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import Provider from "./providers";
+import { NavigationMenu } from "@/components/NavigationMenu";
 
 const openSans = Open_Sans({
   variable: "--font-open-sans",
@@ -21,9 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${openSans.variable} font-sans antialiased bg-white dark:bg-zinc-800 text-black dark:text-white max-w-7xl mx-auto`}
+        className={`${openSans.variable} font-sans antialiased bg-background text-foreground max-w-7xl mx-auto`}
       >
-        <Provider>{children}</Provider>
+        <Provider>
+          {/* <NavigationMenu /> */}
+          {children}
+        </Provider>
       </body>
     </html>
   );
