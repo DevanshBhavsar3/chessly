@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { MouseEvent, useRef } from "react";
+import { TypographySmall } from "./ui/TypographySmall";
+import { PlayerDetails } from "@/types";
+import { PlayerCard } from "./ui/PlayerCard";
 
 function parseFen(fen: string) {
   let parsedFen: string = "";
@@ -58,9 +61,19 @@ interface BoardProps {
   side?: "w" | "b";
   disabled?: boolean;
   notation?: boolean;
+  player?: PlayerDetails;
+  opponent?: PlayerDetails;
 }
 
-export function Board({ fen, onMove, side, disabled, notation }: BoardProps) {
+export function Board({
+  fen,
+  onMove,
+  side,
+  disabled,
+  notation,
+  player,
+  opponent,
+}: BoardProps) {
   const moveRef = useRef<string>("");
   const [position, turn, etc] = fen.split(" ");
   let parsedFen;
@@ -102,45 +115,49 @@ export function Board({ fen, onMove, side, disabled, notation }: BoardProps) {
   }
 
   return (
-    <div className="border border-muted-dark overflow-hidden aspect-square w-fit h-fit">
-      <div className="grid grid-rows-8">
-        {parsedFen.map((row, rowIdx) => (
-          <div key={rowIdx} className="grid grid-cols-8">
-            {Array.from(row).map((col, colIdx) => (
-              <div
-                key={colIdx}
-                data-square={
-                  side === "b"
-                    ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
-                    : String.fromCharCode(97 + colIdx) + (8 - rowIdx)
-                }
-                className={`relative aspect-square ${rowIdx % 2 === colIdx % 2 ? "bg-primary-dark" : "bg-muted"}`}
-                onDragEnter={handleDragEnter}
-                onDragEnd={handleDragEnd}
-              >
-                {notation && (
-                  <p className="absolute text-xs opacity-30 p-0.5">
-                    {side === "b"
+    <div className="space-y-3 h-full flex flex-col items-start justify-center">
+      {opponent && <PlayerCard player={opponent} />}
+      <div className="border border-muted-dark aspect-square h-[calc(100%-10rem)]">
+        <div className="grid grid-rows-8">
+          {parsedFen.map((row, rowIdx) => (
+            <div key={rowIdx} className="grid grid-cols-8">
+              {Array.from(row).map((col, colIdx) => (
+                <div
+                  key={colIdx}
+                  data-square={
+                    side === "b"
                       ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
-                      : String.fromCharCode(97 + colIdx) + (8 - rowIdx)}
-                  </p>
-                )}
-                {getIcon(col) && (
-                  <Image
-                    src={getIcon(col) as string}
-                    data-piece={col}
-                    data-side={col === col.toUpperCase() ? "w" : "b"}
-                    alt="piece"
-                    width={10}
-                    height={10}
-                    className="w-full h-full"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
+                      : String.fromCharCode(97 + colIdx) + (8 - rowIdx)
+                  }
+                  className={`relative aspect-square ${rowIdx % 2 === colIdx % 2 ? "bg-primary-dark" : "bg-muted"}`}
+                  onDragEnter={handleDragEnter}
+                  onDragEnd={handleDragEnd}
+                >
+                  {notation && (
+                    <p className="absolute text-xs opacity-30 p-0.5">
+                      {side === "b"
+                        ? String.fromCharCode(104 - colIdx) + (1 + rowIdx)
+                        : String.fromCharCode(97 + colIdx) + (8 - rowIdx)}
+                    </p>
+                  )}
+                  {getIcon(col) && (
+                    <Image
+                      src={getIcon(col) as string}
+                      data-piece={col}
+                      data-side={col === col.toUpperCase() ? "w" : "b"}
+                      alt="piece"
+                      width={10}
+                      height={10}
+                      className="w-full h-full"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
+      {player && <PlayerCard player={player} />}
     </div>
   );
 }

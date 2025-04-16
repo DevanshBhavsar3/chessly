@@ -48,8 +48,8 @@
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.71 0.1169 149.05);
-  --primary-dark: oklch(0.6 0.1169 149.05);
+  --primary: oklch(0.71 0.1991 149.05);
+  --primary-dark: oklch(0.65 0.1991 149.05);
   --primary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.97 0 0);
   --muted-dark: oklch(0.9 0 0);
