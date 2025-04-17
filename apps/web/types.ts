@@ -2,6 +2,7 @@ export interface PlayerDetails {
   name: string;
   ratings: number;
   image: string;
+  side: "w" | "b";
 }
 
 interface Move {
@@ -21,6 +22,6 @@ export interface GameDetails {
   side: "w" | "b";
   fen: string;
   moves: Move[];
-  player?: PlayerDetails;
-  opponent?: PlayerDetails;
+  player: PlayerDetails;
+  opponent: PlayerDetails;
 }

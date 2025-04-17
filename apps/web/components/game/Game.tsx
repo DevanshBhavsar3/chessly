@@ -12,7 +12,7 @@ export function Game({
   setGameDetails: Dispatch<SetStateAction<GameDetails>>;
 }) {
   return (
-    <div className="h-full w-1/3 px-4 py-2 rounded-sm flex flex-col border shadow-md">
+    <div className="h-full px-4 py-2 flex flex-col shadow-md">
       <TypographyH4>Moves</TypographyH4>
       {/* TODO: Update the UI */}
       <div className="h-1/2 rounded-sm flex gap-4">

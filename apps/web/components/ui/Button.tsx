@@ -1,7 +1,7 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "primary" | "muted";
+  variant?: "default" | "primary" | "muted" | "icon";
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -11,17 +11,18 @@ const variantStyles = {
     "bg-muted hover:bg-muted-dark border-muted-foreground text-foreground border-b-4 ",
   primary:
     "bg-primary hover:bg-primary-dark border-primary-dark primary-m text-primary-foreground border-b-4 ",
-  muted: "border-0 hover:bg-muted-dark transition-all duration-300",
+  muted: "hover:bg-muted-dark ",
+  icon: "border-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full",
 };
 
 const sizeStyles = {
   sm: "h-7 px-2 py-1 font-sm",
   md: "h-10 px-4 py-2 font-medium",
-  lg: "",
+  lg: "h-14 px-4 py-2 font-bold",
 };
 
 const baseStyle =
-  "border max-w-full rounded-sm cursor-pointer text-start flex items-center gap-3";
+  "border max-w-full rounded-sm cursor-pointer text-start flex items-center gap-3 transition-all duration-300";
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "md", ...props }, ref) => {

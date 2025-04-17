@@ -12,30 +12,32 @@ import { Modes } from "./Modes";
 import { DEFAULT_FEN } from "@/utils/constant";
 import { Tools } from "./Tools";
 
+// TODO: ADD actual timer
+// TODO: ADD fullscreen option
 export function GamePage() {
   const { data: session } = useSession();
 
   // Add rating to users's session
-  const player: PlayerDetails = {
-    name: session?.user?.name || "",
-    image: session?.user?.image || "",
-    ratings: 0,
-  };
-
   const opponent: PlayerDetails = {
     name: "Opponent",
-    image: "",
+    image: "/icons/guest.svg",
     ratings: 0,
+    side: "b",
   };
 
   const { socket, loading, startGame, quitGame } = useSocket();
   const [gameDetails, setGameDetails] = useState<GameDetails>({
     gameId: "",
     fen: DEFAULT_FEN,
-    side: "w",
     moves: [],
-    player,
+    player: {
+      name: session?.user?.name || "You",
+      image: session?.user?.image || "/icons/guest.svg",
+      ratings: 0,
+      side: "w",
+    },
     opponent,
+    side: "w",
   });
 
   if (socket) {
@@ -44,12 +46,14 @@ export function GamePage() {
 
       switch (message.type) {
         case WEBSOCKET_MESSAGES.START_GAME:
-          setGameDetails({
+          setGameDetails((prev) => ({
+            ...prev,
             gameId: message.gameId,
             side: message.side,
             fen: DEFAULT_FEN,
             moves: [],
-          });
+            player: { ...prev.player, side: message.side },
+          }));
           break;
         case WEBSOCKET_MESSAGES.MOVE_PIECE:
           setGameDetails((prev) => ({
@@ -63,12 +67,13 @@ export function GamePage() {
           // TODO: Add a nice ui
           console.log("You won");
           quitGame();
-          setGameDetails({
+          setGameDetails((prev) => ({
+            ...prev,
             gameId: "",
             side: "w",
             fen: DEFAULT_FEN,
             moves: [],
-          });
+          }));
           break;
         case WEBSOCKET_MESSAGES.ERROR:
           // TODO: Add a nice ui
@@ -92,27 +97,44 @@ export function GamePage() {
     socket.send(JSON.stringify(message));
   }
 
+  function exitGame() {
+    setGameDetails((prev) => ({
+      ...prev,
+      gameId: "",
+      side: "w",
+      fen: DEFAULT_FEN,
+      moves: [],
+    }));
+    quitGame();
+  }
+
   return (
     <div className="select-none items-center flex justify-between gap-3 w-full h-screen p-4 overflow-hidden">
-      <div className="rounded-sm overflow-hidden w-2/3 h-fit flex">
+      <div className="rounded-sm overflow-hidden w-2/3 h-fit flex gap-2 items-start justify-center">
         <Board
           fen={gameDetails.fen}
           side={gameDetails.side}
-          player={player}
+          player={gameDetails.player}
           opponent={gameDetails.opponent}
           notation
           onMove={makeMove}
         />
-        <Tools />
+        <Tools
+          setGameDetails={setGameDetails}
+          handleExit={exitGame}
+          isRunning={gameDetails.gameId && socket ? true : false}
+        />
       </div>
 
-      {socket && gameDetails.gameId ? (
-        <Game gameDetails={gameDetails} setGameDetails={setGameDetails} />
-      ) : loading ? (
-        <Finding />
-      ) : (
-        <Modes onStart={startGame} />
-      )}
+      <div className="w-1/3 h-full bg-muted border border-muted-dark rounded-md">
+        {socket && gameDetails.gameId ? (
+          <Game gameDetails={gameDetails} setGameDetails={setGameDetails} />
+        ) : loading ? (
+          <Finding />
+        ) : (
+          <Modes onStart={startGame} />
+        )}
+      </div>
     </div>
   );
 }

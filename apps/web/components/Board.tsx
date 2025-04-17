@@ -58,7 +58,7 @@ function getIcon(piece: string) {
 interface BoardProps {
   fen: string;
   onMove?: (move: { from: string; to: string }) => void;
-  side?: "w" | "b";
+  side: "w" | "b";
   disabled?: boolean;
   notation?: boolean;
   player?: PlayerDetails;
@@ -101,7 +101,8 @@ export function Board({
     const target = e.target as HTMLElement;
 
     // Return if the piece is not of user's side
-    if (target.dataset.side !== side) return;
+    console.log(player?.side);
+    if (target.dataset.side !== player?.side) return;
 
     const parentElement = target.parentElement as HTMLElement;
     const fromSquare = parentElement.dataset.square;

@@ -7,7 +7,7 @@ export function PlayerCard({ player }: { player: PlayerDetails }) {
     <div className="flex justify-start items-center gap-2">
       {/* Player Image */}
       <Image
-        src={player.image || "/icons/guest.svg"}
+        src={player.image}
         alt="player"
         width={14}
         height={14}
