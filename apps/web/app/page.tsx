@@ -73,7 +73,7 @@ export default async function Home() {
               <TypographyMuted>12 PLaying Now</TypographyMuted>
             </div>
           </div>
-          <AutoPlayingBoard />
+          {/* <AutoPlayingBoard /> */}
         </div>
       </div>
     </main>

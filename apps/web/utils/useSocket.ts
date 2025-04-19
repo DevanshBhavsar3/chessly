@@ -1,6 +1,6 @@
 "use client";
 
-import { FRONTEND_MESSAGES, WEBSOCKET_MESSAGES } from "@repo/common";
+import { FRONTEND_MESSAGES, Modes, WEBSOCKET_MESSAGES } from "@repo/common";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
@@ -15,7 +15,7 @@ export function useSocket() {
     };
   }, [socket]);
 
-  function startGame(mode: string) {
+  function startGame(mode: Modes) {
     setLoading(true);
     const socket = new WebSocket(`ws://localhost:8080?id=${data?.user?.id}`);
 

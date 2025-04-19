@@ -3,24 +3,41 @@
 import { TypographyH4 } from "../ui/TypographyH4";
 import { TypographySmall } from "../ui/TypographySmall";
 import { Button } from "../ui/Button";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Radio } from "../ui/Radio";
 import { TypographyH3 } from "../ui/TypographyH3";
 import { ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { TypographyLarge } from "../ui/TypographyLarge";
+import { Modes } from "@repo/common";
+import { GameDetails } from "@/types";
 
-export function Modes({ onStart }: { onStart: (mode: string) => void }) {
-  const [mode, setMode] = useState<string>("10 min");
+export function ModesSelector({
+  gameDetails,
+  setGameDetails,
+  onStart,
+}: {
+  gameDetails: GameDetails;
+  setGameDetails: Dispatch<SetStateAction<GameDetails>>;
+  onStart: (mode: Modes) => void;
+}) {
   const [toggle, setToggle] = useState<boolean>(false);
 
   const modes = [
-    { title: "Bullet", icon: "", submodes: ["1 min", "1 | 1", "2 | 1"] },
+    {
+      title: "Bullet",
+      icon: "",
+      submodes: [Modes["1 min"], Modes["1 | 1"], Modes["2 | 1"]],
+    },
     {
       title: "Blitz",
       icon: <Zap size={16} />,
-      submodes: ["3 min", "3 | 2", "5 min"],
+      submodes: [Modes["3 min"], Modes["3 | 2"], Modes["5 min"]],
     },
-    { title: "Rapid", icon: "", submodes: ["10 min", "15 | 10", "30 min"] },
+    {
+      title: "Rapid",
+      icon: "",
+      submodes: [Modes["10 min"], Modes["15 | 10"], Modes["30 min"]],
+    },
   ];
 
   return (
@@ -31,7 +48,7 @@ export function Modes({ onStart }: { onStart: (mode: string) => void }) {
         onClick={() => setToggle(!toggle)}
         className="bg-zinc-200 border border-zinc-300 text-center py-2 rounded-md relative flex justify-center items-center w-full"
       >
-        <TypographyH3>{mode}</TypographyH3>
+        <TypographyH3>{Modes[gameDetails.mode]}</TypographyH3>
         {toggle ? (
           <ChevronUp
             size={16}
@@ -59,10 +76,12 @@ export function Modes({ onStart }: { onStart: (mode: string) => void }) {
                     key={idx}
                     name="mode"
                     className="text-center"
-                    onChange={() => setMode(submode)}
-                    defaultChecked={submode == mode}
+                    onChange={() =>
+                      setGameDetails((prev) => ({ ...prev, mode: submode }))
+                    }
+                    defaultChecked={submode == gameDetails.mode}
                   >
-                    <TypographySmall>{submode}</TypographySmall>
+                    <TypographySmall>{Modes[submode]}</TypographySmall>
                   </Radio>
                 ))}
               </div>
@@ -72,7 +91,7 @@ export function Modes({ onStart }: { onStart: (mode: string) => void }) {
       )}
       <Button
         variant="primary"
-        onClick={() => onStart(mode)}
+        onClick={() => onStart(gameDetails.mode)}
         className="w-full justify-center text-center"
         type="submit"
       >

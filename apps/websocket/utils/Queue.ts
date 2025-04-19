@@ -1,11 +1,11 @@
 import type WebSocket from "ws";
 import { Game } from "./Game";
-import { WEBSOCKET_MESSAGES } from "@repo/common";
+import { getTime, Modes, WEBSOCKET_MESSAGES } from "@repo/common";
 
 type Node = {
   value: WebSocket;
   userId: string;
-  mode: string;
+  mode: Modes;
   next?: Node;
   prev?: Node;
 };
@@ -20,7 +20,7 @@ export class Queue {
     this.length = 0;
   }
 
-  enqueue(item: WebSocket, userId: string, mode: string): Game | undefined {
+  enqueue(item: WebSocket, userId: string, mode: Modes): Game | undefined {
     if (this.seek(userId)) {
       const message = {
         type: WEBSOCKET_MESSAGES.ERROR,
@@ -118,18 +118,23 @@ export class Queue {
 
     while (curr) {
       if (curr.userId !== opponent.userId && curr.mode === opponent.mode) {
-        const game = new Game(curr.value, opponent.value);
+        const game = new Game(curr.value, opponent.value, opponent.mode);
 
         const message = {
           type: WEBSOCKET_MESSAGES.START_GAME,
           message: "Game Found.",
           gameId: game.id,
+          time: getTime(Modes[opponent.mode] as unknown as string).baseTime,
         };
 
-        curr.value.send(JSON.stringify({ ...message, side: "w" }));
+        curr.value.send(
+          JSON.stringify({ ...message, side: "w", isMove: true })
+        );
         this.remove(curr.userId);
 
-        opponent.value.send(JSON.stringify({ ...message, side: "b" }));
+        opponent.value.send(
+          JSON.stringify({ ...message, side: "b", isMove: false })
+        );
         this.remove(opponent.userId);
 
         return game;

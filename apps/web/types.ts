@@ -1,8 +1,11 @@
+import { Modes } from "@repo/common";
+
 export interface PlayerDetails {
   name: string;
   ratings: number;
   image: string;
   side: "w" | "b";
+  time: number;
 }
 
 interface Move {
@@ -18,7 +21,9 @@ interface Move {
 }
 
 export interface GameDetails {
+  mode: Modes;
   gameId: string;
+  isMove: boolean;
   side: "w" | "b";
   fen: string;
   moves: Move[];

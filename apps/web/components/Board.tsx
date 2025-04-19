@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { MouseEvent, useRef } from "react";
+import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef } from "react";
 import { TypographySmall } from "./ui/TypographySmall";
-import { PlayerDetails } from "@/types";
+import { GameDetails, PlayerDetails } from "@/types";
 import { PlayerCard } from "./ui/PlayerCard";
 
 function parseFen(fen: string) {
@@ -56,27 +56,54 @@ function getIcon(piece: string) {
 }
 
 interface BoardProps {
-  fen: string;
+  gameDetails: GameDetails;
+  setGameDetails: Dispatch<SetStateAction<GameDetails>>;
   onMove?: (move: { from: string; to: string }) => void;
-  side: "w" | "b";
   disabled?: boolean;
   notation?: boolean;
-  player?: PlayerDetails;
-  opponent?: PlayerDetails;
+  handleExit: () => void;
 }
 
 export function Board({
-  fen,
+  gameDetails,
+  setGameDetails,
   onMove,
-  side,
   disabled,
   notation,
-  player,
-  opponent,
+  handleExit,
 }: BoardProps) {
+  const { fen, gameId, side, player, opponent, isMove } = gameDetails;
   const moveRef = useRef<string>("");
   const [position, turn, etc] = fen.split(" ");
   let parsedFen;
+
+  useEffect(() => {
+    if (disabled) return;
+
+    const timer = setInterval(() => {
+      if (isMove) {
+        setGameDetails((prev) => {
+          if (prev.player.time < 0) {
+            handleExit();
+          }
+
+          return {
+            ...prev,
+            player: { ...prev.player, time: 0 },
+          };
+        });
+      } else {
+        setGameDetails((prev) => ({
+          ...prev,
+          opponent: { ...prev.opponent, time: prev.opponent.time - 1000 },
+        }));
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [disabled, isMove]);
 
   if (side === "b") {
     parsedFen = parseFen(position).split("/").reverse();
