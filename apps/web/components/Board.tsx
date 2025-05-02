@@ -1,5 +1,7 @@
 "use client";
 
+// TODO: Flipping the board very fast stops the time
+
 import Image from "next/image";
 import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef } from "react";
 import { TypographySmall } from "./ui/TypographySmall";
@@ -61,7 +63,7 @@ interface BoardProps {
   onMove?: (move: { from: string; to: string }) => void;
   disabled?: boolean;
   notation?: boolean;
-  handleExit: () => void;
+  handleExit: (message: string) => void;
 }
 
 export function Board({
@@ -82,28 +84,44 @@ export function Board({
 
     const timer = setInterval(() => {
       if (isMove) {
-        setGameDetails((prev) => {
-          if (prev.player.time < 0) {
-            handleExit();
-          }
+        setGameDetails({
+          ...gameDetails,
+          player: {
+            ...gameDetails.player,
+            time: gameDetails.player.time - 1000,
+          },
+        });
 
-          return {
+        if (gameDetails.player.time < 0) {
+          handleExit("Lost on Time.");
+
+          setGameDetails((prev) => ({
             ...prev,
             player: { ...prev.player, time: 0 },
-          };
-        });
+          }));
+        }
       } else {
-        setGameDetails((prev) => ({
-          ...prev,
-          opponent: { ...prev.opponent, time: prev.opponent.time - 1000 },
-        }));
+        setGameDetails({
+          ...gameDetails,
+          opponent: {
+            ...gameDetails.opponent,
+            time: gameDetails.opponent.time - 1000,
+          },
+        });
+
+        if (gameDetails.opponent.time < 0) {
+          setGameDetails((prev) => ({
+            ...prev,
+            opponent: { ...prev.opponent, time: 0 },
+          }));
+        }
       }
     }, 1000);
 
     return () => {
       clearInterval(timer);
     };
-  }, [disabled, isMove]);
+  }, [disabled, isMove, gameDetails]);
 
   if (side === "b") {
     parsedFen = parseFen(position).split("/").reverse();

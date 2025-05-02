@@ -30,3 +30,10 @@ export interface GameDetails {
   player: PlayerDetails;
   opponent: PlayerDetails;
 }
+
+export interface GameResult {
+  winningSide: "w" | "b" | "d";
+  winner: PlayerDetails;
+  loser: PlayerDetails;
+  message: string;
+}

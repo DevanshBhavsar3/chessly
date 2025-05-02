@@ -53,3 +53,9 @@ export function getTime(mode: string): TimeControl {
       return { baseTime: 0, increament: 0 };
   }
 }
+
+export type GameOverMessage = {
+  type: WEBSOCKET_MESSAGES;
+  winningSide: "w" | "b" | "d";
+  message: string;
+};

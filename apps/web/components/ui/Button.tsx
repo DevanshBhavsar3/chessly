@@ -2,7 +2,7 @@ import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "primary" | "muted" | "icon";
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "auto";
   className?: string;
 }
 
@@ -12,13 +12,14 @@ const variantStyles = {
   primary:
     "bg-primary hover:bg-primary-dark border-primary-dark primary-m text-primary-foreground border-b-4 ",
   muted: "hover:bg-muted-dark ",
-  icon: "border-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full",
+  icon: "border-0 text-muted-foreground hover:text-foreground rounded-full",
 };
 
 const sizeStyles = {
   sm: "h-7 px-2 py-1 font-sm",
   md: "h-10 px-4 py-2 font-medium",
   lg: "h-14 px-4 py-2 font-bold",
+  auto: "h-fit",
 };
 
 const baseStyle =

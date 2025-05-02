@@ -4,21 +4,23 @@ import { useSocket } from "@/utils/useSocket";
 import { Board } from "../Board";
 import {
   FRONTEND_MESSAGES,
+  GameOverMessage,
   getTime,
   Modes,
   WEBSOCKET_MESSAGES,
 } from "@repo/common";
 import { useEffect, useState } from "react";
-import { GameDetails, PlayerDetails } from "@/types";
+import { GameDetails, GameResult } from "@/types";
 import { useSession } from "next-auth/react";
 import { Finding } from "./Finding";
 import { Game } from "./Game";
 import { ModesSelector } from "./Modes";
 import { DEFAULT_FEN } from "@/utils/constant";
 import { Tools } from "./Tools";
+import { GameFinishedPopup } from "./GameFinishedPopup";
 
-// TODO: ADD timeout quit game
 // TODO: ADD fullscreen option
+// TODO: ADD Game finished message: quitGace(msg: string)
 // TODO: ADD Rating
 export function GamePage() {
   const { data: session } = useSession();
@@ -47,6 +49,7 @@ export function GamePage() {
     },
     side: "w",
   });
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
 
   useEffect(() => {
     const time = getTime(Modes[gameDetails.mode] as unknown as string).baseTime;
@@ -87,9 +90,26 @@ export function GamePage() {
           break;
         case WEBSOCKET_MESSAGES.GAME_ENDED:
         case WEBSOCKET_MESSAGES.GAME_ABORTED:
-          // TODO: Add a nice ui
-          console.log("You won");
+          const typedMessage: GameOverMessage = message;
+          const result: GameResult = {
+            message: message.message,
+            winningSide: typedMessage.winningSide,
+            winner: gameDetails.player,
+            loser: gameDetails.opponent,
+          };
+
+          if (gameDetails.player.side === typedMessage.winningSide) {
+            result.winner = gameDetails.player;
+            result.loser = gameDetails.opponent;
+          } else {
+            result.winner = gameDetails.opponent;
+            result.loser = gameDetails.player;
+          }
+
           quitGame();
+          setGameResult(result);
+
+          // Don't reset the details until the user quits the page
           setGameDetails((prev) => ({
             ...prev,
             gameId: "",
@@ -123,7 +143,7 @@ export function GamePage() {
     socket.send(JSON.stringify(message));
   }
 
-  function exitGame() {
+  function exitGame(message: string) {
     setGameDetails((prev) => ({
       ...prev,
       gameId: "",
@@ -133,7 +153,12 @@ export function GamePage() {
       player: { ...prev.player, time: 0 },
       opponent: { ...prev.opponent, time: 0 },
     }));
-    quitGame();
+
+    if (gameDetails.player.side == "w") {
+      quitGame("White " + message);
+    } else {
+      quitGame("Black " + message);
+    }
   }
 
   return (
@@ -167,6 +192,13 @@ export function GamePage() {
           />
         )}
       </div>
+
+      {gameResult && (
+        <GameFinishedPopup
+          result={gameResult}
+          closePopup={() => setGameResult(null)}
+        />
+      )}
     </div>
   );
 }

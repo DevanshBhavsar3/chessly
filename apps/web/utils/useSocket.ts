@@ -33,7 +33,7 @@ export function useSocket() {
     };
   }
 
-  function quitGame() {
+  function quitGame(message?: string) {
     if (!socket) return;
 
     if (socket.readyState === socket.OPEN) {
@@ -41,6 +41,7 @@ export function useSocket() {
         JSON.stringify({
           type: FRONTEND_MESSAGES.QUIT,
           userId: data?.user?.id,
+          message,
         })
       );
 

@@ -5,7 +5,7 @@ import { GameDetails } from "@/types";
 
 interface ToolsProps {
   setGameDetails: Dispatch<SetStateAction<GameDetails>>;
-  handleExit: () => void;
+  handleExit: (message: string) => void;
   isRunning: boolean;
 }
 
@@ -31,7 +31,7 @@ export function Tools({ setGameDetails, handleExit, isRunning }: ToolsProps) {
     options.push({
       title: "Resign",
       icon: <LogOut size={16} />,
-      onClick: handleExit,
+      onClick: () => handleExit("Aborted the Game."),
     });
   }
 

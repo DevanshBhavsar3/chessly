@@ -1,4 +1,9 @@
-import { getTime, Modes, WEBSOCKET_MESSAGES } from "@repo/common";
+import {
+  getTime,
+  Modes,
+  WEBSOCKET_MESSAGES,
+  type GameOverMessage,
+} from "@repo/common";
 import { randomUUIDv7 } from "bun";
 import { Chess, type Color } from "chess.js";
 import WebSocket from "ws";
@@ -90,16 +95,19 @@ export class Game {
   }
 
   gameover() {
-    const message = {
+    const message: GameOverMessage = {
       type: WEBSOCKET_MESSAGES.GAME_ENDED,
+      winningSide: "d",
       message: "",
     };
 
     if (this.game.isDraw()) {
       message.message = "Game Draw.";
     } else if (this.game.turn() === "b") {
+      message.winningSide = "w";
       message.message = "White won. Game Over";
     } else if (this.game.turn() === "w") {
+      message.winningSide = "b";
       message.message = "Black won. Game Over";
     }
 
@@ -110,16 +118,19 @@ export class Game {
     this.black.close();
   }
 
-  abort(side: Color) {
-    const message = {
+  abort(side: Color, msg: string) {
+    const message: GameOverMessage = {
       type: WEBSOCKET_MESSAGES.GAME_ABORTED,
-      message: "Game Aborted by Opponent",
+      message: msg,
+      winningSide: "d",
     };
 
     if (side === "w") {
+      message.winningSide = "b";
       this.black.send(JSON.stringify(message));
       this.black.close();
     } else if (side === "b") {
+      message.winningSide = "w";
       this.white.send(JSON.stringify(message));
       this.white.close();
     }

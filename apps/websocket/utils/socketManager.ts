@@ -60,9 +60,9 @@ export class SocketManager {
           case FRONTEND_MESSAGES.QUIT:
             this.games.forEach((g) => {
               if (g.white === socket) {
-                g.abort("w");
+                g.abort("w", message.message);
               } else if (g.black === socket) {
-                g.abort("b");
+                g.abort("b", message.message);
               }
             });
 
