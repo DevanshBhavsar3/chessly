@@ -11,17 +11,27 @@ import WebSocket from "ws";
 export class Game {
   public id: string;
   public white: WebSocket;
+  public whiteId: string;
   public black: WebSocket;
+  public blackId: string;
   private game: Chess;
   private whiteTime: number;
   private blackTime: number;
   private increament: number;
   private lastMoveTime: number;
 
-  constructor(player1: WebSocket, player2: WebSocket, mode: Modes) {
+  constructor(
+    player1: WebSocket,
+    player2: WebSocket,
+    player1Id: string,
+    player2Id: string,
+    mode: Modes
+  ) {
     this.id = randomUUIDv7("hex");
     this.white = player1;
     this.black = player2;
+    this.whiteId = player1Id;
+    this.blackId = player2Id;
     this.game = new Chess();
 
     const time = getTime(Modes[mode] as unknown as string);
@@ -122,17 +132,10 @@ export class Game {
     const message: GameOverMessage = {
       type: WEBSOCKET_MESSAGES.GAME_ABORTED,
       message: msg,
-      winningSide: "d",
+      winningSide: side === "w" ? "b" : "w",
     };
 
-    if (side === "w") {
-      message.winningSide = "b";
-      this.black.send(JSON.stringify(message));
-      this.black.close();
-    } else if (side === "b") {
-      message.winningSide = "w";
-      this.white.send(JSON.stringify(message));
-      this.white.close();
-    }
+    this.black.send(JSON.stringify(message));
+    this.white.send(JSON.stringify(message));
   }
 }

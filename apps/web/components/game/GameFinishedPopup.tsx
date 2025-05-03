@@ -19,7 +19,7 @@ export function GameFinishedPopup({
 }: GameFinishedPopupProps) {
   return (
     <div className="absolute inset-0 flex justify-center items-center bg-black/10">
-      <div className="flex flex-col justify-center items-center gap-10 bg-popover p-4 border border-muted-dark rounded-md min-w-xl">
+      <div className="flex flex-col justify-center items-center gap-10 bg-popover p-4 border border-popover-border rounded-lg min-w-xl">
         <div className="w-full flex justify-between items-center">
           <TypographyH4>Game Finished</TypographyH4>
           <Button

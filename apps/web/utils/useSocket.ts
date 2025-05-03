@@ -10,9 +10,12 @@ export function useSocket() {
   const { data } = useSession();
 
   useEffect(() => {
-    return () => {
-      quitGame();
-    };
+    if (socket) {
+      socket.onclose = () => {
+        setSocket(null);
+        setLoading(false);
+      };
+    }
   }, [socket]);
 
   function startGame(mode: Modes) {
@@ -45,8 +48,6 @@ export function useSocket() {
         })
       );
 
-      socket.close();
-      setSocket(null);
       setLoading(false);
     }
   }

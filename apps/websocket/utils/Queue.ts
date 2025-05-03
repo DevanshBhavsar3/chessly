@@ -118,7 +118,13 @@ export class Queue {
 
     while (curr) {
       if (curr.userId !== opponent.userId && curr.mode === opponent.mode) {
-        const game = new Game(curr.value, opponent.value, opponent.mode);
+        const game = new Game(
+          curr.value,
+          opponent.value,
+          curr.userId,
+          opponent.userId,
+          opponent.mode
+        );
 
         const message = {
           type: WEBSOCKET_MESSAGES.START_GAME,

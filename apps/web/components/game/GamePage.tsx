@@ -20,7 +20,7 @@ import { Tools } from "./Tools";
 import { GameFinishedPopup } from "./GameFinishedPopup";
 
 // TODO: ADD fullscreen option
-// TODO: ADD Game finished message: quitGace(msg: string)
+// TODO: BUG: Sometimes the userID is undefined when connecting to the socket
 // TODO: ADD Rating
 export function GamePage() {
   const { data: session } = useSession();
@@ -106,7 +106,7 @@ export function GamePage() {
             result.loser = gameDetails.player;
           }
 
-          quitGame();
+          // quitGame();
           setGameResult(result);
 
           // Don't reset the details until the user quits the page
@@ -151,7 +151,6 @@ export function GamePage() {
       fen: DEFAULT_FEN,
       moves: [],
       player: { ...prev.player, time: 0 },
-      opponent: { ...prev.opponent, time: 0 },
     }));
 
     if (gameDetails.player.side == "w") {

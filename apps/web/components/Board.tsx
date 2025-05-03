@@ -83,45 +83,33 @@ export function Board({
     if (disabled) return;
 
     const timer = setInterval(() => {
-      if (isMove) {
-        setGameDetails({
-          ...gameDetails,
-          player: {
-            ...gameDetails.player,
-            time: gameDetails.player.time - 1000,
-          },
-        });
+      const playerKey = isMove ? "player" : "opponent";
 
-        if (gameDetails.player.time < 0) {
-          handleExit("Lost on Time.");
+      setGameDetails((prev) => {
+        const updatedTime = prev[playerKey].time - 1000;
 
-          setGameDetails((prev) => ({
+        if (updatedTime < 0) {
+          if (playerKey === "player") {
+            handleExit("Lost on Time.");
+          }
+
+          return {
             ...prev,
-            player: { ...prev.player, time: 0 },
-          }));
+            [playerKey]: { ...prev[playerKey], time: 0 },
+          };
         }
-      } else {
-        setGameDetails({
-          ...gameDetails,
-          opponent: {
-            ...gameDetails.opponent,
-            time: gameDetails.opponent.time - 1000,
-          },
-        });
 
-        if (gameDetails.opponent.time < 0) {
-          setGameDetails((prev) => ({
-            ...prev,
-            opponent: { ...prev.opponent, time: 0 },
-          }));
-        }
-      }
+        return {
+          ...prev,
+          [playerKey]: { ...prev[playerKey], time: updatedTime },
+        };
+      });
     }, 1000);
 
     return () => {
       clearInterval(timer);
     };
-  }, [disabled, isMove, gameDetails]);
+  }, [disabled, isMove]);
 
   if (side === "b") {
     parsedFen = parseFen(position).split("/").reverse();
